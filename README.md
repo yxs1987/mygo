@@ -1,0 +1,2 @@
+# mygo
+first go project
