@@ -20,6 +20,8 @@ var (
 	PageNum int
 
 	JwtSecret string
+	APPID string
+	APPSECRET string
 )
 
 func init() {
@@ -60,4 +62,7 @@ func LoadApp() {
 	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
 	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
 	PageNum = sec.Key("PAGE_NUM").MustInt(1)
+
+	APPID = sec.Key("APP_ID").MustString("")
+	APPSECRET = sec.Key("APP_SECRET").MustString("")
 }

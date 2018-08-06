@@ -1,18 +1,22 @@
-package mygo
+package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/ginS"
+	"net/http"
+	"fmt"
+	"mygo/setting"
+	"mygo/router"
 )
 
+func main() {
+	r := router.InitRouter()
 
-func main(){
-	r := gin.Default()
-	ginS.GET("/", func(context *gin.Context) {
-		context.JSON(200,gin.H{
-			"message":"this is ok",
-		})
-	})
+	s := &http.Server{
+		Addr:           fmt.Sprintf(":%d", setting.HTTPPort),
+		Handler:        r,
+		ReadTimeout:    setting.ReadTimeout,
+		WriteTimeout:   setting.WriteTimeout,
+		MaxHeaderBytes: 1 << 20,
+	}
 
-	r.Run("127.0.0.1:9321")
+	s.ListenAndServe()
 }
