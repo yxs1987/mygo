@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"mygo/setting"
 	"log"
 	"fmt"
@@ -25,7 +26,7 @@ func init(){
 	sec,err := setting.Cfg.GetSection("database")
 
 	if err != nil{
-		log.Fatal("找不到database模块",err)
+		log.Fatal(2,"找不到database模块:%v",err)
 	}
 
 	dbType = sec.Key("DB_TYPE").String()

@@ -8,7 +8,7 @@ import (
 )
 
 
-func login(c *gin.Context){
+func Login(c *gin.Context){
 	code:= c.DefaultQuery("code","")
 
 	app_id := setting.APPID

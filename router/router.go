@@ -18,8 +18,8 @@ func InitRouter() *gin.Engine{
 
 	apiwx := r.Group("/api/wx")
 	{
-		apiwx.GET("/login",wx.login)
-		apiwx.GET("/goods",)
+		apiwx.GET("/login",wx.Login)
+		apiwx.GET("/good",wx.GoodList)
 	}
 
 	return r
@@ -30,5 +30,13 @@ func index(c *gin.Context){
 
 	c.JSON(200,gin.H{
 		"sss":"aa",
+	})
+}
+
+func JsonSuccess(c *gin.Context,data interface{},msg string){
+	c.JSON(200,gin.H{
+		"code":200,
+		"data":data,
+		"msg":msg,
 	})
 }

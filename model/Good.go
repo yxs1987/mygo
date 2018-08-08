@@ -1,5 +1,7 @@
 package model
 
+import "github.com/gin-gonic/gin"
+
 type Good struct {
 	Model
 
@@ -17,7 +19,7 @@ type Good struct {
 }
 
 func GoodList(pageNum int,pageSize int,maps interface{}) (goods []Good){
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&goods)
+	db.Debug().Where(maps).Offset(pageNum).Limit(pageSize).Find(&goods)
 	return
 }
 
@@ -27,4 +29,16 @@ func Total(maps interface{}) (int,error)  {
 		return 0, err
 	}
 	return count,nil
+}
+
+
+//获取单条数据
+func GoodView(c *gin.Context) {
+	id := c.DefaultQuery("id","0")
+	if id == "0" {
+		return
+	}
+
+	db.Where("id=?",id).Find(&Good{})
+	return
 }

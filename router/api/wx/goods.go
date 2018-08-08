@@ -7,7 +7,7 @@ import (
 )
 
 //商品列表
-func lists(c *gin.Context) {
+func GoodList(c *gin.Context) {
 
 	name := c.DefaultQuery("name", "")
 	category_id := c.DefaultQuery("category_id", "0")
