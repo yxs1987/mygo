@@ -4,6 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"mygo/model"
 	"net/http"
+	"github.com/Unknwon/com"
+	//"log"
+	//"log"
+	"fmt"
 )
 
 //商品列表
@@ -30,4 +34,16 @@ func GoodList(c *gin.Context) {
 		"data": data,
 	})
 
+}
+
+func GoodView(c *gin.Context){
+	id := com.StrTo(c.Param("id")).MustInt()
+	var data interface {}
+	data = model.GoodView(id)
+	fmt.Println(data)
+	c.JSON(200,gin.H{
+		"code":200,
+		"msg":"获取成功",
+		"data":data,
+	})
 }

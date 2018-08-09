@@ -10,9 +10,8 @@ import (
 
 var db *gorm.DB
 
-
 type Model struct{
-	ID int `gorm:"primary_key" json:"id"`
+	//ID int `gorm:"primary_key" json:"id"`
 	CreateTime int `json:"create_time"`
 	UpdateTime int `json:"update_time"`
 }
@@ -36,7 +35,7 @@ func init(){
 	dbHost = sec.Key("DB_HOST").String()
 	tablePrefix = sec.Key("TABLE_PREFIX").String()
 
-	db,err := gorm.Open(dbType,fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	db,err = gorm.Open(dbType,fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		dbUser,
 		dbPassword,
 		dbHost,
@@ -46,6 +45,10 @@ func init(){
 		log.Println(err)
 	}
 
+	db.LogMode(true)
+
+	db.SingularTable(true)
+
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
 		return tablePrefix + defaultTableName
 	}
@@ -53,9 +56,9 @@ func init(){
 	db.SingularTable(false)
 	db.DB().SetMaxIdleConns(60)
 	db.DB().SetMaxOpenConns(60)
-	db.LogMode(true)
+
 }
 
-func closeDB()  {
+func CloseDB() {
 	defer db.Close()
 }

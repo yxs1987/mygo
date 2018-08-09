@@ -20,6 +20,7 @@ func InitRouter() *gin.Engine{
 	{
 		apiwx.GET("/login",wx.Login)
 		apiwx.GET("/good",wx.GoodList)
+		apiwx.GET("/good/:id",wx.GoodView)
 	}
 
 	return r
