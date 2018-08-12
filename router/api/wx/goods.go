@@ -39,11 +39,40 @@ func GoodList(c *gin.Context) {
 func GoodView(c *gin.Context){
 	id := com.StrTo(c.Param("id")).MustInt()
 	var data interface {}
-	data = model.GoodView(id)
+	data = model.GetDataByPk(id)
 	fmt.Println(data)
 	c.JSON(200,gin.H{
 		"code":200,
 		"msg":"获取成功",
 		"data":data,
 	})
+}
+
+func GoodEdit(c *gin.Context){
+	id := com.StrTo(c.Param("id")).MustInt()
+
+	good := model.Good{GoodsId:id}
+	err := c.BindJSON(&good)
+
+	if err != nil{
+		bool,err := model.EditByPk(id,good)
+		if bool == false{
+			c.JSON(http.StatusOK,gin.H{
+				"code":400,
+				"msg":err,
+
+			})
+		}else{
+			c.JSON(http.StatusOK,gin.H{
+				"code":200,
+				"msg":"更新成功",
+
+			})
+		}
+	}else{
+		c.JSON(http.StatusOK,gin.H{
+			"code":400,
+			"msg":"数据错误",
+		})
+	}
 }

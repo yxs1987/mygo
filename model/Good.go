@@ -8,6 +8,7 @@ import (
 
 type Good struct {
 	GoodsId int `gorm:"primary_key" json:"goods_id"`
+	GoodsName string `json:"goods_name"`
 	SpecType int `json:"spec_type"`
 	CategoryId int `json:"category_id"`
 	DeductStockType int `json:"deduct_stock_type"`
@@ -25,7 +26,7 @@ func (Good) TableName() string {
 }
 
 func GoodList(pageNum int,pageSize int,maps interface{}) (goods []Good){
-	db.Debug().Where(maps).Offset(pageNum).Limit(pageSize).Find(&goods)
+	db.Debug().Table("rw_goods").Where(maps).Offset(pageNum).Limit(pageSize).Find(&goods)
 	return
 }
 
@@ -39,7 +40,7 @@ func Total(maps interface{}) (int,error)  {
 
 
 //获取单条数据
-func GoodView(id int) (good Good) {
+func GetDataByPk(id int) (good Good) {
 	println(&db)
 	if err := db.Debug().
 		Where("goods_id=?", id).First(&good).Error;err != nil {
@@ -54,7 +55,9 @@ func GoodView(id int) (good Good) {
 }
 
 
-func GoodEdit(id int,data interface{}) bool {
-	db.Model(&Good{}).Where("id=?",id).Updates(data)
-	return true
+func EditByPk(id int,data interface{}) (bool bool,err error) {
+	if err := db.Model(&Good{}).Where("goods_id=?",id).Updates(data).Error;err != nil {
+		return false,err
+	}
+	return true,err
 }
