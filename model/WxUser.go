@@ -3,6 +3,16 @@ package model
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/bwmarrin/snowflake"
+	"log"
+	"net/http"
+	"io/ioutil"
+	"mygo/setting"
+	"fmt"
+	"encoding/json"
+
+	"crypto/md5"
+	"io"
+	"math/rand"
 )
 
 type WxUser struct {
@@ -17,15 +27,11 @@ type WxUser struct {
 	AddressId int32 `json:"address_id"`
 }
 
-func saveUser()  {
-	var wxuser = WxUser{}
-	db.Create(wxuser)
-}
-
 //登录返回的结构体
-type result struct {
+type returnResult struct {
 	code string
 	msg string
+	token string
 }
 
 func (user *WxUser) BeforeSave(scope *gorm.Scope) (err error)  {
@@ -38,26 +44,70 @@ func (user *WxUser) BeforeSave(scope *gorm.Scope) (err error)  {
 	return nil
 }
 
-func WxLogin(code string,user WxUser) *result {
+func WxLogin(data map[string]interface{}) *returnResult {
 
-	st := &result{
-
+	st := &returnResult{
+		code:"200",
 	}
 
-	//创建会员
-	if err := db.Model(&user).Where("open_id=?",user.OpenId).First(&user).Error;err != nil {
+	var code interface{}
+	if data["code"] != nil{
+		code = data["code"]
+	}
+
+	app_id := setting.APPID
+	app_secret := setting.APPSECRET
+
+	url := setting.WECHAT_LOGIN_URL
+
+	url = fmt.Sprintf(url, app_id, app_secret, code)
+	log.Print(url)
+	client := &http.Client{}
+	result, err := http.NewRequest("GET", url, nil)
+	if err != nil {
 		st.code = "400"
 		st.msg = err.Error()
 	}
 
-	//无会员创建
+	response, _ := client.Do(result)
+	body, err := ioutil.ReadAll(response.Body)
+	jsonStr := string(body)
 
-	if err := db.Model(&user).Save(&user).Error;err != nil{
-
-
+	//正确的时候返回openid和session_key
+	var f map[string] interface{}
+	jsonerr := json.Unmarshal([]byte(jsonStr), &f)
+	if jsonerr != nil {
+		st.msg = jsonerr.Error()
 	}
 
-	//有会员更新token
+	session_key := f["session_key"]
+	openid := f["openid"]
+
+	var user WxUser
+	//创建会员
+	findErr := db.Table("rw_user").Model(&user).Where("open_id=?",openid).First(&user).Error;
+	if findErr != nil && findErr != gorm.ErrRecordNotFound{
+		//报异常错误了
+		st.code = "400"
+		st.msg = err.Error()
+	}
+
+	if err == gorm.ErrRecordNotFound {
+		//无会员创建
+		if err := db.Table("rw_user").Model(&user).Save(&user).Error;err != nil{
+			st.code = "400"
+			st.msg = "创建失败"
+		}
+	} else{
+		//加个盐
+		salt := fmt.Sprintf("%s_%s_%s",session_key,openid,rand.Float64())
+		w := md5.New()
+		io.WriteString(w,salt)
+		token := fmt.Sprintf("%x", w.Sum(nil))
+		//有会员更新token
+		st.token = token
+		//后续存入redis
+	}
 
 	return st
 }

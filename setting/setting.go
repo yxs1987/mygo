@@ -22,6 +22,7 @@ var (
 	JwtSecret string
 	APPID string
 	APPSECRET string
+	WECHAT_LOGIN_URL string
 )
 
 func init() {
@@ -65,4 +66,5 @@ func LoadApp() {
 
 	APPID = sec.Key("APP_ID").MustString("")
 	APPSECRET = sec.Key("APP_SECRET").MustString("")
+	WECHAT_LOGIN_URL = sec.Key("WECHAT_LOGIN_URL").MustString("")
 }
