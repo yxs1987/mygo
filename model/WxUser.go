@@ -22,6 +22,12 @@ func saveUser()  {
 	db.Create(wxuser)
 }
 
+//登录返回的结构体
+type result struct {
+	code string
+	msg string
+}
+
 func (user *WxUser) BeforeSave(scope *gorm.Scope) (err error)  {
 	node,err := snowflake.NewNode(1)
 	if err != nil{
@@ -30,4 +36,28 @@ func (user *WxUser) BeforeSave(scope *gorm.Scope) (err error)  {
 	id := node.Generate()
 	scope.SetColumn("ID",id)
 	return nil
+}
+
+func WxLogin(code string,user WxUser) *result {
+
+	st := &result{
+
+	}
+
+	//创建会员
+	if err := db.Model(&user).Where("open_id=?",user.OpenId).First(&user).Error;err != nil {
+		st.code = "400"
+		st.msg = err.Error()
+	}
+
+	//无会员创建
+
+	if err := db.Model(&user).Save(&user).Error;err != nil{
+
+
+	}
+
+	//有会员更新token
+
+	return st
 }
