@@ -9,17 +9,17 @@ import (
 	"mygo/setting"
 	"fmt"
 	"encoding/json"
-
 	"crypto/md5"
 	"io"
-	"math/rand"
+	"github.com/goinggo/mapstructure"
 )
 
 type WxUser struct {
 	Model
-	OpenId string `json:"open_id"`
-	NickName string `json:"nick_name"`
-	AvatarUrl string `json:"avatarUrl"`
+	ID int64 `gorm:"column:user_id" json:"id"`
+	OpenId string `gorm:"column:open_id" json:"open_id"`
+	NickName string `gorm:"column:nickName" json:"nickName"`
+	AvatarUrl string `gorm:"column:avatarUrl" json:"avatarUrl"`
 	Gender int `json:"gender"`
 	Country string `json:"country"`
 	Province string `json:"province"`
@@ -83,24 +83,32 @@ func WxLogin(data map[string]interface{}) *returnResult {
 	session_key := f["session_key"]
 	openid := f["openid"]
 
-	var user WxUser
+	selectUser := WxUser{}
 	//创建会员
-	findErr := db.Table("rw_user").Model(&user).Where("open_id=?",openid).First(&user).Error;
+	findErr := db.Table("rw_user").Model(&selectUser).Where("open_id=?",openid).First(&selectUser).Error;
 	if findErr != nil && findErr != gorm.ErrRecordNotFound{
 		//报异常错误了
 		st.code = "400"
 		st.msg = err.Error()
 	}
 
-	if err == gorm.ErrRecordNotFound {
+	//转换interface为数据体
+	var saveUser WxUser
+	if err := mapstructure.Decode(data["user_info"], &saveUser); err != nil {
+		log.Println(err)
+	}
+
+	if findErr == gorm.ErrRecordNotFound {
 		//无会员创建
-		if err := db.Table("rw_user").Model(&user).Save(&user).Error;err != nil{
+		saveUser.OpenId = f["openid"].(string)
+		log.Println(saveUser)
+		if err := db.Table("rw_user").Create(&saveUser).Error;err != nil{
 			st.code = "400"
 			st.msg = "创建失败"
 		}
 	} else{
 		//加个盐
-		salt := fmt.Sprintf("%s_%s_%s",session_key,openid,rand.Float64())
+		salt := fmt.Sprintf("%s_%s_%s",session_key,openid,"mygo_token_salt")
 		w := md5.New()
 		io.WriteString(w,salt)
 		token := fmt.Sprintf("%x", w.Sum(nil))
@@ -108,6 +116,8 @@ func WxLogin(data map[string]interface{}) *returnResult {
 		st.token = token
 		//后续存入redis
 	}
+
+	//fmt.Println(data)
 
 	return st
 }
