@@ -61,7 +61,8 @@ func EditByPk(id int, data interface{}) (bool bool, err error) {
 
 func DelByPk(id int) (bool bool, err error) {
 	var good Good
-	err = db.Model(&good).Where("goods_id=?", id).Error
+	//err = db.Where("goods_id=?", id).Model(&good).Error
+	err = db.First(&good, id).Error
 	if err != nil {
 		return false, err
 	}
