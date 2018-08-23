@@ -1,31 +1,31 @@
 package model
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"mygo/setting"
 	"log"
-	"fmt"
+	"mygo/setting"
 )
 
 var db *gorm.DB
 
-type Model struct{
+type Model struct {
 	//ID int `gorm:"primary_key" json:"id"`
 	CreateTime int `json:"create_time"`
 	UpdateTime int `json:"update_time"`
 }
 
-func init(){
+func init() {
 	var (
-		err error
-		dbType,dbName,dbPassword,dbUser,dbHost,tablePrefix string
+		err                                                     error
+		dbType, dbName, dbPassword, dbUser, dbHost, tablePrefix string
 	)
 
-	sec,err := setting.Cfg.GetSection("database")
+	sec, err := setting.Cfg.GetSection("database")
 
-	if err != nil{
-		log.Fatal(2,"找不到database模块:%v",err)
+	if err != nil {
+		log.Fatal(2, "找不到database模块:%v", err)
 	}
 
 	dbType = sec.Key("DB_TYPE").String()
@@ -35,13 +35,13 @@ func init(){
 	dbHost = sec.Key("DB_HOST").String()
 	tablePrefix = sec.Key("TABLE_PREFIX").String()
 
-	db,err = gorm.Open(dbType,fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		dbUser,
 		dbPassword,
 		dbHost,
 		dbName))
 
-	if err!=nil{
+	if err != nil {
 		log.Println(err)
 	}
 

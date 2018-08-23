@@ -1,10 +1,10 @@
 package wx
 
 import (
+	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	"mygo/model"
 	"net/http"
-	"github.com/Unknwon/com"
 	//"log"
 	//"log"
 	"fmt"
@@ -36,43 +36,62 @@ func GoodList(c *gin.Context) {
 
 }
 
-func GoodView(c *gin.Context){
+func GoodView(c *gin.Context) {
 	id := com.StrTo(c.Param("id")).MustInt()
-	var data interface {}
+	var data interface{}
 	data = model.GetDataByPk(id)
 	fmt.Println(data)
-	c.JSON(200,gin.H{
-		"code":200,
-		"msg":"获取成功",
-		"data":data,
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "获取成功",
+		"data": data,
 	})
 }
 
-func GoodEdit(c *gin.Context){
+func GoodView2(c *gin.Context) {
+	id := com.StrTo(c.Param("id")).MustInt()
+	var data interface{}
+	data = model.GetByPk(id)
+	fmt.Println(data)
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "获取成功",
+		"data": data,
+	})
+}
+
+func GoodDel(c *gin.Context) {
+	id := com.StrTo(c.Param("id")).MustInt()
+	model.DelByPk(id)
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "删除",
+	})
+}
+
+func GoodEdit(c *gin.Context) {
 	id := com.StrTo(c.Param("id")).MustInt()
 
-	good := model.Good{GoodsId:id}
+	good := model.Good{GoodsId: id}
 	err := c.BindJSON(&good)
 
-	if err != nil{
-		bool,err := model.EditByPk(id,good)
-		if bool == false{
-			c.JSON(http.StatusOK,gin.H{
-				"code":400,
-				"msg":err,
-
+	if err != nil {
+		bool, err := model.EditByPk(id, good)
+		if bool == false {
+			c.JSON(http.StatusOK, gin.H{
+				"code": 400,
+				"msg":  err,
 			})
-		}else{
-			c.JSON(http.StatusOK,gin.H{
-				"code":200,
-				"msg":"更新成功",
-
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"code": 200,
+				"msg":  "更新成功",
 			})
 		}
-	}else{
-		c.JSON(http.StatusOK,gin.H{
-			"code":400,
-			"msg":"数据错误",
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 400,
+			"msg":  "数据错误",
 		})
 	}
 }
