@@ -68,3 +68,9 @@ func LoadApp() {
 	APPSECRET = sec.Key("APP_SECRET").MustString("")
 	WECHAT_LOGIN_URL = sec.Key("WECHAT_LOGIN_URL").MustString("")
 }
+
+//func LoadRedis(){
+//	sec,err:= Cfg.GetSection("redis")
+//
+//	redisPool = Redis
+//}

@@ -6,6 +6,7 @@ import (
 )
 
 type Good struct {
+	Model
 	GoodsId         int    `gorm:"primary_key" json:"goods_id"`
 	GoodsName       string `json:"goods_name"`
 	SpecType        int    `json:"spec_type"`
@@ -21,17 +22,17 @@ type Good struct {
 }
 
 func (Good) TableName() string {
-	return "rw_goods"
+	return "goods"
 }
 
 func GoodList(pageNum int, pageSize int, maps interface{}) (goods []Good) {
-	db.Debug().Table("rw_goods").Where(maps).Offset(pageNum).Limit(pageSize).Find(&goods)
+	db.Debug().Where(maps).Offset(pageNum).Limit(pageSize).Find(&goods)
 	return
 }
 
 func Total(maps interface{}) (int, error) {
 	var count int
-	if err := db.Model(&Good{}).Where(maps).Count(&count).Error; err != nil {
+	if err := db.Table("rw_goods").Model(&Good{}).Where(maps).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil

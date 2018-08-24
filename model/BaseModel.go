@@ -11,7 +11,6 @@ import (
 var db *gorm.DB
 
 type Model struct {
-	//ID int `gorm:"primary_key" json:"id"`
 	CreateTime int `json:"create_time"`
 	UpdateTime int `json:"update_time"`
 }
@@ -53,7 +52,6 @@ func init() {
 		return tablePrefix + defaultTableName
 	}
 
-	db.SingularTable(false)
 	db.DB().SetMaxIdleConns(60)
 	db.DB().SetMaxOpenConns(60)
 

@@ -23,6 +23,7 @@ func InitRouter() *gin.Engine {
 		apiwx.GET("/good/get/:id", wx.GoodView)
 		apiwx.POST("/good/edit/:id", wx.GoodEdit)
 		apiwx.GET("/good/del/:id", wx.GoodDel)
+		apiwx.GET("/category",wx.CategoryList)
 	}
 
 	return r
