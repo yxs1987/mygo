@@ -4,7 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"mygo/router/api/wx"
 	"mygo/setting"
+	"strconv"
 )
+
+var redis *redis
 
 func InitRouter() *gin.Engine {
 
@@ -23,6 +26,7 @@ func InitRouter() *gin.Engine {
 		apiwx.GET("/good/get/:id", wx.GoodView)
 		apiwx.GET("/category",wx.CategoryList)
 		apiwx.GET("/category/:id",wx.CategoryGoods)
+		apiwx.POST("/cart/add",wx.AddToCart)
 	}
 
 	return r
@@ -42,4 +46,5 @@ func JsonSuccess(c *gin.Context, data interface{}, msg string) {
 		"data": data,
 		"msg":  msg,
 	})
+
 }
