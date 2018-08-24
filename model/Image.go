@@ -1,7 +1,7 @@
 package model
 
 type ImageFile struct {
-	ID int `json:"image_id"`
+	ImageId int `gorm:"primary_key column:image_id" json:"image_id"`
 	FileUrl string `json:"file_url"`
 	CreateTime int `json:"create_time"`
 }
