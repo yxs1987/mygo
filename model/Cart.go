@@ -1,38 +1,22 @@
 package model
 
-import (
-	"github.com/goinggo/mapstructure"
-	"log"
-	"github.com/jinzhu/gorm"
-	"github.com/gin-gonic/gin"
-)
-
-type Cart struct{
-	GoodId int `json:"good_id"`
-	Token string `json:"token"`
-	GoodNum int `json:"good_num"`
-	GoodSpecId int `json:"good_spec_id"`
+type Cart struct {
+	CartId      int64       `json:"cart_id"`
+	UserId      int64       `json:"user_id"`
+	Goods       []CartGoods `json:"goods"`
+	TotalPrice  float64     `json:"total_price"`
+	CreatedAt   string      `json:"created_at"`
+	TotalNum    int         `json:"total_num"`
+	TotalWeight float64     `json:"total_weight"`
 }
 
-func AddGoodToCart(maps interface{}) (c *gin.Context){
-	var cart Cart
-	var user WxUser
-	mapstructure.Decode(maps,&cart)
-	//查询用户数据是否存在
-
-
-	err := db.Model(&user).Where("token=?",cart.Token).Find(&user).Error;
-	if err != nil && err != gorm.ErrRecordNotFound{
-		log.Println(err);
-	}
-
-	if err == gorm.ErrRecordNotFound {
-		c.JSON(200,gin.H{})
-	}
-	return
-}
-
-//获取购物车中的商品总个数
-func GetNum(){
-
+type CartGoods struct {
+	GoodsId     int64        `json:"goods_id"`
+	GoodsName   string       `json:"goods_name"`
+	GoodsPrice  float64      `json:"goods_price"`
+	GoodsWeight float64      `json:"goods_weight"`
+	GoodsImage  []GoodsImage `json:"image"`
+	TotalWeight float64      `json:"total_weight"`
+	TotalNum    int          `json:"total_num"`
+	TotalPrice  float64      `json:"total_price"`
 }
