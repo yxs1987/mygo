@@ -1,7 +1,6 @@
 package handle
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -9,10 +8,11 @@ import (
 	"mygo/model"
 	"mygo/service"
 	"mygo/setting"
+	"strconv"
 	"time"
 )
 
-const SecretKey = "jfdjkk.,/[2112"
+const SecretKey = "abc"
 
 type OpenId struct {
 	OpenId     string `json:"openid"`
@@ -22,7 +22,6 @@ type OpenId struct {
 func Login(ctx *fasthttp.RequestCtx) {
 
 	var wxresponse model.WechatResponse
-	//ctx.Request.Header.SetContentType("application/json")
 	var rs Response
 
 	app_id := setting.APPID
@@ -35,9 +34,7 @@ func Login(ctx *fasthttp.RequestCtx) {
 		fmt.Println("登录出错", err)
 	}
 
-	fmt.Println(wxresponse)
 	url = fmt.Sprintf(url, app_id, app_secret, wxresponse.Code)
-
 	httpcode, result, err := fasthttp.Get(nil, url)
 
 	if httpcode != fasthttp.StatusOK || err != nil {
@@ -60,24 +57,22 @@ func Login(ctx *fasthttp.RequestCtx) {
 		claims := make(jwt.MapClaims)
 		claims["exp"] = time.Now().Add(time.Hour)
 		claims["iat"] = time.Now().Unix()
+		claims["iss"] = "yh"
+		claims["uid"] = strconv.FormatInt(resp.Data.(int64), 10)
+
 		token.Claims = claims
 
-		jo := bytes.Buffer{}
-		jo.WriteString(SecretKey)
-		jo.WriteString(open.OpenId)
-
-		tokenString, err := token.SignedString(jo.Bytes())
+		tokenString, err := token.SignedString([]byte(SecretKey))
 
 		if err != nil {
 			fmt.Println("token错误", err)
+		} else {
+			rs.Msg = resp.Msg
+			rs.StatusCode = resp.StatusCode
+
+			rs.Data = map[string]string{"token": tokenString}
+			CommonWriteSuccess(ctx, rs)
 		}
-
-		rs.Msg = resp.Msg
-		rs.StatusCode = resp.StatusCode
-
-		rs.Data = map[string]string{"token": tokenString}
-		CommonWriteSuccess(ctx, rs)
-
 	} else {
 		CommonWriteError(ctx, rs)
 	}

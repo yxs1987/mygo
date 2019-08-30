@@ -30,13 +30,18 @@ func WriteBytes(ctx *fasthttp.RequestCtx, result []byte) {
 
 func CommonWriteSuccess(ctx *fasthttp.RequestCtx, resp Response) {
 	resp.StatusCode = 200
-	resp.Msg = "ok"
+	if len(resp.Msg) == 0 {
+		resp.Msg = "ok"
+	}
+
 	CommonWrite(ctx, resp)
 }
 
 func CommonWriteError(ctx *fasthttp.RequestCtx, resp Response) {
 	resp.StatusCode = 400
-	resp.Msg = "error"
+	if len(resp.Msg) == 0 {
+		resp.Msg = "error"
+	}
 	CommonWrite(ctx, resp)
 }
 

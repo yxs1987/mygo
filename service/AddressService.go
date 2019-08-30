@@ -13,7 +13,9 @@ func AddAddress(user_id int64, address model.Address) Response {
 	query := elastic.NewBoolQuery().Must(elastic.NewTermQuery("user_id", user_id)).MustNot(elastic.NewTermQuery("status", 13))
 	cnt, err := es.Count().Index(common.ES_ADDRESS).Type(common.ES_ADDRESS).Query(query).Do(context.Background())
 	if err != nil {
-
+		resp.StatusCode = 400
+		resp.Msg = err.Error()
+		return resp
 	}
 	if cnt >= 10 {
 		log.Info("地址保存数量超过限制", zap.Int64("user_id", user_id), zap.Any("address", address))
@@ -21,17 +23,24 @@ func AddAddress(user_id int64, address model.Address) Response {
 		resp.Msg = ""
 	} else {
 
-		es.Index().Index(common.ES_ADDRESS).BodyJson(address).Do(context.Background())
+		address.UserId = user_id
+		address.AddressId = common.GetNextId()
+
+		_, err := es.Index().Index(common.ES_ADDRESS).Type(common.ES_ADDRESS).BodyJson(address).Do(context.Background())
+		if err != nil {
+			resp.Msg = err.Error()
+			resp.StatusCode = 400
+		}
 
 		result, _ := es.Search().Index().Query(query).Do(context.Background())
 		for _, hit := range result.Hits.Hits {
-			var address model.Address
-			address.UnmarshalJSON(*hit.Source)
-			addr = append(addr, address)
+			var add model.Address
+			add.UnmarshalJSON(*hit.Source)
+			addr = append(addr, add)
 		}
 
-		user, err := es.Search().Index().Query(elastic.NewTermQuery("user_id", user_id)).Size(1).Do(context.Background())
-		if err != nil {
+		user, err := es.Search().Index(common.ES_USER).Query(elastic.NewTermQuery("user_id", user_id)).Size(1).Do(context.Background())
+		if err == nil {
 			for _, hit := range user.Hits.Hits {
 				up := map[string]interface{}{"address": addr}
 				es.Update().Index(common.ES_USER).Type(common.ES_USER).Id(hit.Id).Doc(up).Do(context.Background())
@@ -40,6 +49,7 @@ func AddAddress(user_id int64, address model.Address) Response {
 
 	}
 
+	resp.Data = address
 	return resp
 }
 

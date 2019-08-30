@@ -22,6 +22,8 @@ func init() {
 	es = db.ConnectEs()
 }
 
+var hitId string
+
 func CreateUser(openid string, info model.UserInfo) Response {
 	var res Response
 	query := elastic.NewBoolQuery().Must(elastic.NewTermQuery("open_id", openid))
@@ -38,6 +40,7 @@ func CreateUser(openid string, info model.UserInfo) Response {
 	res.Data = user
 
 	for _, hit := range result.Hits.Hits {
+		hitId = hit.Id
 		user.UnmarshalJSON(*hit.Source)
 	}
 	if user.OpenId == "" {
@@ -49,6 +52,7 @@ func CreateUser(openid string, info model.UserInfo) Response {
 		}
 
 		user = info
+		user.OpenId = openid
 		user.UserId = newId
 		user.LatestLoginTime = carbon.Now().Format("2006-01-02 15:04:05")
 		_, err = es.Index().Index(common.ES_USER).Type(common.ES_USER).BodyJson(user).Do(context.Background())
@@ -59,18 +63,19 @@ func CreateUser(openid string, info model.UserInfo) Response {
 	} else {
 		up := map[string]interface{}{}
 		up["latest_login_time"] = carbon.Now().Format("2006-01-02 15:04:05")
-		up["avatar_url"] = info.AvatarUrl
+		up["avatarUrl"] = info.AvatarUrl
 		up["nickName"] = info.Nickname
 		up["country"] = info.Country
 		up["province"] = info.Province
 		up["city"] = info.City
-		_, err = es.Update().Index(common.ES_USER).Type(common.ES_USER).Doc(up).Do(context.Background())
+		_, err = es.Update().Index(common.ES_USER).Type(common.ES_USER).Id(hitId).Doc(up).Do(context.Background())
 		if err != nil {
 			res.StatusCode = 400
 			res.Msg = "用户数据更新失败"
 
 		}
 	}
+	res.Data = user.UserId
 
 	return res
 }

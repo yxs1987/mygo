@@ -20,14 +20,14 @@ type UserInfo struct {
 	City            string    `json:"city"`
 	Province        string    `json:"province"`
 	Country         string    `json:"country"`
-	AvatarUrl       string    `json:"avatar_url"`
+	AvatarUrl       string    `json:"avatarUrl"`
 	Address         []Address `json:"address"`
 	LatestLoginTime string    `json:"latest_login_time"`
 }
 
 type Address struct {
 	Tm
-	AddressId string `json:"address_id"`
+	AddressId int64  `json:"address_id"`
 	Name      string `json:"name"`
 	UserId    int64  `json:"user_id"`
 	Province  string `json:"province"`

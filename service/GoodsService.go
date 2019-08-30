@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/olivere/elastic"
+	"mygo/common"
 	"mygo/model"
 )
 
@@ -34,4 +35,12 @@ func GetGoodsByCategory(category, pageNum, pageSize int) []model.Goods {
 		goods = append(goods, good)
 	}
 	return goods
+}
+
+func InsertGoods(data model.Goods) error {
+	_, err := es.Index().Index(common.ES_GOODS).BodyJson(data).Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	idworker "github.com/gitstliu/go-id-worker"
 	"github.com/olivere/elastic"
 	"go.uber.org/zap"
 	"mygo/common"
@@ -42,13 +41,8 @@ func AddGoods(user_id, cart_id int64, goods model.CartGoods) Response {
 			}
 		}
 	} else {
-		currWorker := &idworker.IdWorker{}
-		currWorker.InitIdWorker(1000, 1)
-		newId, err := currWorker.NextId()
-		if err != nil {
 
-		}
-		thiscart.CartId = newId
+		thiscart.CartId = common.GetNextId()
 		thiscart.Goods[0] = goods
 		thiscart.TotalNum = 1
 		thiscart.TotalWeight = goods.GoodsWeight
@@ -62,23 +56,13 @@ func AddGoods(user_id, cart_id int64, goods model.CartGoods) Response {
 
 //立即购买
 func BuyNow(user_id int64, goods model.CartGoods) Response {
-
-	currWorker := &idworker.IdWorker{}
-	currWorker.InitIdWorker(1000, 1)
-	newId, err := currWorker.NextId()
-	if err != nil {
-
-		resp.StatusCode = 400
-		resp.Msg = "内部错误"
-	}
-
 	var cart model.Cart
 	cart.UserId = user_id
 	cart.Goods[0] = goods
 	cart.TotalPrice = goods.GoodsPrice
 	cart.TotalWeight = goods.GoodsWeight
 	cart.TotalNum = 1
-	cart.CartId = newId
+	cart.CartId = common.GetNextId()
 	resp.Data = cart
 	return resp
 }
