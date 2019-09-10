@@ -43,11 +43,9 @@ func CORS(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 				return []byte("abc"), nil
 			})
 
-		fmt.Println(ctx.Request.Body())
 		if err == nil {
 			if token.Valid {
 				claims := token.Claims
-				fmt.Println(claims)
 				uid := GetIdFromClaims("uid", claims)
 				ctx.Request.Header.Set("uid", uid)
 			} else {
@@ -91,8 +89,8 @@ func init() {
 }
 
 func main() {
-	api := fasthttprouter.New()
 
+	api := fasthttprouter.New()
 	api.POST("/api/user/login", handle.Login)
 
 	//api.GET("/good", handle.GoodList)
@@ -107,6 +105,10 @@ func main() {
 	api.POST("/auth/category/:id", CORS(handle.GetCategoryById))
 	api.GET("/auth/goods/:id", CORS(handle.GetGoodsById))
 	api.POST("/auth/address/add", CORS(handle.AddAddress))
+	api.GET("/auth/cart/add", CORS(handle.AddAddress))
+	api.GET("/auth/cart/buyNow", CORS(handle.BuyNow))
+	api.POST("/auth/order/create", CORS(handle.OrderDo))
+	api.POST("/auth/order/list", CORS(handle.OrderList))
 
 	err := fasthttp.ListenAndServe(":8080", api.Handler)
 

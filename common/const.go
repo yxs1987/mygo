@@ -1,6 +1,8 @@
 package common
 
-import idworker "github.com/gitstliu/go-id-worker"
+import (
+	idworker "github.com/gitstliu/go-id-worker"
+)
 
 const ES_USER = "es_user"
 const ES_ORDER = "es_order"

@@ -71,21 +71,72 @@ const Address = `{
 const Goods = `{
 	"es_goods":{
 		"properties":{
-			"order_id":{"type":"keyword"},
+			"goods_id":{"type":"long"},
+			"goods_name":{"type":"text"},
+			"images":{
+				"type":"nested",
+				"properties":{
+					"image_id":{"type":"keyword"},
+					"url":{"type":"keyword"},
+					"status":{"type":"integer"},
+					"type":{"type":"integer"}
+				}
+			},
+			"content":{"type":"text"},
+			"status":{"type":"integer"},
+			"is_new":{"type":"integer"},
+			"is_hot":{"type":"integer"},
+			"goods_price":{"type":"double"},
+			"goods_weight":{"type":"double"},
+			"category_id":{"type":"keyword"}
+		}
+	}
+}`
+
+const Category = `{
+	"es_category":{
+		"properties":{
+			"category_id":{"type":"keyword"},
+			"category_name":{"type":"text"},
+			"image":{"type":"keyword"},
+			"child_category":{
+				"type":"nested",
+				"properties":{
+					"category_id":{"type":"keyword"},
+					"category_name":{"type":"text"},
+					"image":{"type":"keyword"}
+				}
+			},
+			"status":{"type":"integer"}
+		}
+	}
+}`
+
+const Cart = `{
+	"es_cart":{
+		"properties":{
+			"cart_id":{"type":"keyword"},
 			"user_id":{"type":"keyword"},
+			"type":{"type":"integer"},
 			"goods":{
 				"type":"nested",
 				"properties":{
 					"goods_id":{"type":"keyword"},
-					"goods_num":{"type":"integer"},
+					"goods_name":{"type":"text"},
+					"images":{"type":"keyword"},
 					"goods_price":{"type":"double"},
-					"goods_total_price":{"type":"double"},
-					"goods_weight":{"type":"double"}
+					"goods_weight":{"type":"double"},
+					"category_id":{"type":"keyword"},
+					"total_num":{"type":"double"},
+					"total_weight":{"type":"double"},
+					"total_price":{"type":"double"}
 				}
 			},
+			"status":{"type":"integer"},
 			"total_num":{"type":"double"},
 			"total_weight":{"type":"double"},
-			"total_price":{"type":"double"}
+			"total_price":{"type":"double"},
+			"created_at":{"type":"keyword"}
 		}
 	}
 }`

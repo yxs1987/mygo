@@ -8,19 +8,27 @@ import (
 	"mygo/common"
 	"mygo/db"
 	"mygo/model"
+	"time"
 )
 
 //是否添加示例数据
 var example = flag.Bool("example", true, "-example=true")
 
-//是否创建索引
-var cindex = flag.Bool("cindex", true, "-cindex=true")
+//是否重置索引
+var reindex = flag.Bool("reindex", true, "-reindex=true")
 
 func main() {
+	flag.Parse()
 	InitMapping(common.ES_GOODS, common.Goods)
 	InitMapping(common.ES_ADDRESS, common.Address)
 	InitMapping(common.ES_USER, common.User)
 	InitMapping(common.ES_ORDER, common.Order)
+	InitMapping(common.ES_CATEGORY, common.Category)
+	InitMapping(common.ES_CART, common.Cart)
+	if *example {
+		ExampleData(common.ES_GOODS)
+		ExampleData(common.ES_CATEGORY)
+	}
 }
 
 // 创建 elasticSearch 的 Mapping
@@ -61,20 +69,20 @@ func ExampleData(index string) {
 	switch index {
 	case common.ES_GOODS:
 		m := model.Goods{}
-		m.GoodsId = common.GetNextId()
+		m.GoodsId = time.Now().Unix()
 		m.GoodsName = "测试商品1"
 		m.GoodsWeight = 0.3
 		m.GoodsPrice = 125
 		m.Image = []model.GoodsImage{}
 		m.Content = "这里是商品的详细介绍"
-		client.Index().Index(index).BodyJson(m).Do(context.Background())
-
+		client.Index().Index(index).Type(index).BodyJson(m).Do(context.Background())
 	case common.ES_CATEGORY:
 		c := model.Category{}
 		c.Image = ""
+		c.CategoryId = time.Now().Unix()
 		c.CategoryName = "分类1"
 		c.ChildCategory = []model.Category{}
-		client.Index().Index(index).BodyJson(c).Do(context.Background())
+		client.Index().Index(index).Type(index).BodyJson(c).Do(context.Background())
 
 	}
 }

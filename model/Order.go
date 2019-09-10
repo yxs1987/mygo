@@ -24,4 +24,27 @@ type Order struct {
 	BankType      string `json:"bank_type"`
 	TransactionId string `json:"transaction_id"`
 	PayTimeEnd    string `json:"pay_time_end"`
+	OrderStatus   int    `json:"order_status"`
+}
+
+type CreateOrder struct {
+	CartId    int64 `json:"cart_id"`
+	AddressId int64 `json:"address_id"`
+}
+
+type PayOrder struct {
+	OrderId int64 `json:"order_id"`
+	UserId  int64 `json:"user_id"`
+}
+
+type OrderList struct {
+	UserId      int64 `json:"user_id"`
+	PayStatus   int   `json:"pay_status"`
+	OrderStatus int   `json:"order_status"`
+	Page        Page
+}
+
+type Page struct {
+	PageSize int `json:"page_size"`
+	PageNum  int `json:"page_num"`
 }

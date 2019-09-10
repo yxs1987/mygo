@@ -55,7 +55,8 @@ func Login(ctx *fasthttp.RequestCtx) {
 	if resp.StatusCode == 200 {
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := make(jwt.MapClaims)
-		claims["exp"] = time.Now().Add(time.Hour)
+		//有效期7天
+		claims["exp"] = time.Now().Add(time.Hour * 24 * 7).Unix()
 		claims["iat"] = time.Now().Unix()
 		claims["iss"] = "yh"
 		claims["uid"] = strconv.FormatInt(resp.Data.(int64), 10)
